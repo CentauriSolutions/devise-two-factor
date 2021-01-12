@@ -1,3 +1,5 @@
+require 'cgi'
+
 RSpec.shared_examples 'two_factor_authenticatable' do
   before :each do
     subject.otp_secret = subject.class.generate_otp_secret
@@ -97,13 +99,13 @@ RSpec.shared_examples 'two_factor_authenticatable' do
     let(:account)           { Faker::Internet.email }
     let(:issuer)            { "Tinfoil" }
 
-    it "should return uri with specified account" do
-      expect(subject.otp_provisioning_uri(account)).to match(%r{otpauth://totp/#{account}\?secret=\w{#{otp_secret_length}}})
+    it 'should return uri with specified account' do
+      expect(subject.otp_provisioning_uri(account)).to match(%r{otpauth://totp/#{CGI.escape(account)}\?secret=\w{#{otp_secret_length}}})
     end
 
     it 'should return uri with issuer option' do
-      expect(subject.otp_provisioning_uri(account, issuer: issuer)).to match(%r{otpauth://totp/#{issuer}:#{account}\?.*secret=\w{#{otp_secret_length}}(&|$)})
-      expect(subject.otp_provisioning_uri(account, issuer: issuer)).to match(%r{otpauth://totp/#{issuer}:#{account}\?.*issuer=#{issuer}(&|$)})
+      expect(subject.otp_provisioning_uri(account, issuer: issuer)).to match(%r{otpauth://totp/#{issuer}:#{CGI.escape(account)}\?.*secret=\w{#{otp_secret_length}}(&|$)})
+      expect(subject.otp_provisioning_uri(account, issuer: issuer)).to match(%r{otpauth://totp/#{issuer}:#{CGI.escape(account)}\?.*issuer=#{issuer}(&|$)})
     end
   end
 end
